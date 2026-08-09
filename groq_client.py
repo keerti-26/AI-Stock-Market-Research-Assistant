@@ -49,6 +49,7 @@ class GroqClient:
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = tool_choice
+            kwargs["parallel_tool_calls"] = False  # Prevent malformed function calls
  
         return self._client.chat.completions.create(**kwargs)
 
