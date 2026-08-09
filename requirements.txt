@@ -1,6 +1,8 @@
 sentence_transformers
 databricks-sdk>=0.118.0
-trafilatura 
+trafilatura
+psycopg2-binary
+streamlit
 requests 
 pandas
 openai
