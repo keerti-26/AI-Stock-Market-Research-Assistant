@@ -1,0 +1,6 @@
+sentence_transformers
+databricks-sdk>=0.118.0
+trafilatura 
+requests 
+pandas
+openai
