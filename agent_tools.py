@@ -131,7 +131,7 @@ def save_research_notes(ticker:str, notes_text:str, user:str="demo_user") -> str
             conn.commit()
         finally:
            conn.close()
-    return f"Notes has been saved for {ticker}: {note_id}"
+    return f"Note saved successfully for {ticker.strip().upper()} (ID: {note_id})"
 
     
         

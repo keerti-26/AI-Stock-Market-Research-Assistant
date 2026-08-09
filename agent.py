@@ -71,12 +71,12 @@ TOOLS = [
                         "type": "string",
                         "description": "Stock ticker symbol the note is about.",
                     },
-                    "note_text": {
+                    "notes_text": {
                         "type": "string",
                         "description": "The note content to save.",
                     },
                 },
-                "required": ["ticker", "note_text"]
+                "required": ["ticker", "notes_text"]
             },
                 
         },
@@ -104,11 +104,13 @@ def run_agent(user_query:str, max_turns:int=10) ->str:
         {"role":"user", "content": user_query}
     ]
     
-    for _ in range(max_turns):
+    for turn in range(max_turns):
         response = client.chat(messages, tools=TOOLS)
         message = response.choices[0].message
+        
+        # If no tool calls, we have a final answer
         if not message.tool_calls:
-            return message.content
+            return message.content or "I completed the task."
         messages.append(
             {
                 "role": "assistant",
@@ -133,7 +135,8 @@ def run_agent(user_query:str, max_turns:int=10) ->str:
                 args = json.loads(tool_call.function.arguments)
                 result = fn(**args) if fn else f"Unknown tool: {fn_name}"
             except Exception as e:
-                result = f"error runing function {fn_name}:{e}"
+                result = f"Error running function {fn_name}: {e}"
+                print(f"Tool call error - Function: {fn_name}, Args: {tool_call.function.arguments}, Error: {e}")
 
             messages.append(
                 {
@@ -142,7 +145,7 @@ def run_agent(user_query:str, max_turns:int=10) ->str:
                     "content": str(result)
                 }
             )
-        print(messages)
+        print(f"Turn {turn + 1}: Called {[tc.function.name for tc in message.tool_calls]}")
     return "I wasn't able to finish that within the tool-call limit — try rephrasing or breaking it into a simpler question."
 
 if __name__ =="__main__":
