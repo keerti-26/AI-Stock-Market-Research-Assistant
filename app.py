@@ -7,7 +7,7 @@ from agent_tools import _get_connection
 
 st.set_page_config(page_title="Stock Research Assistant", page_icon="📈", layout="wide")
 
-def get_watch_list_tickers(): -> list(str):
+def get_watch_list_tickers() -> list(str):
     conn = _get_connection()
     try:
         with conn.cursor() as cur:
