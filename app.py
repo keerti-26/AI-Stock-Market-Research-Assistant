@@ -56,4 +56,13 @@ with st.sidebar:
 # ---- Main: chat ----
 st.title("📈 AI Stock Market Research Assistant")
 st.caption("Ask about prices, news, or say things like \"save a note on AAPL that...\"")
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+if prompt := st.chat_input("Ask about a ticker price, recent news or save a note..."):
+    st.session_state.messages.append({"role":"user", "content":prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
