@@ -137,7 +137,7 @@ def run_agent(user_query:str, max_turns:int=10) ->str:
 
             messages.append(
                 {
-                    "role":"assistant",
+                    "role": "tool",
                     "tool_call_id": tool_call.id,
                     "content": str(result)
                 }
