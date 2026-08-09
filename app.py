@@ -71,6 +71,9 @@ if prompt := st.chat_input("Ask about a ticker price, recent news or save a note
         with st.spinner("Thinking...."):
             try:
                 response = run_agent(prompt)
+                # Clean the response to remove any weird formatting
+                if response:
+                    response = str(response).strip()
             except Exception as e:
                 response = f" Something went wrong: {e}"
         st.markdown(response)

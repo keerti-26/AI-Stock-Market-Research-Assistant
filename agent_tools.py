@@ -45,7 +45,7 @@ def get_price_summary(ticker:str) -> str:
     direction = "up" if change>=0 else "down"
     pct_change = (change/open_price*100) if open_price else 0
     return(
-        f"{ticker} on {snapshot_date}: closed at {close_price}"
+        f"{ticker} on {snapshot_date}: closed at {close_price} "
         f"({direction} {abs(pct_change):.2f}% from open of {open_price}). "
         f"Day range: {low_price}-{high_price}. Volume: {volume:,}."
     )
