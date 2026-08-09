@@ -69,9 +69,9 @@ if prompt := st.chat_input("Ask about a ticker price, recent news or save a note
     
     with st.chat_message("assistant"):
         with st.spinner("Thinking...."):
-        try:
-            response = run_agent(prompt)
-        except Exception as e:
-            response = f" Something went wrong: {e}"
+            try:
+                response = run_agent(prompt)
+            except Exception as e:
+                response = f" Something went wrong: {e}"
         st.markdown(response)
     st.session_state.messages.append({"role":"assistant", "content":response})
