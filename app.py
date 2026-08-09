@@ -68,7 +68,7 @@ if prompt := st.chat_input("Ask about a ticker price, recent news or save a note
         st.markdown(prompt)
     
     with st.chat_message("assistant"):
-        with st.spinner("Thinking....")
+        with st.spinner("Thinking...."):
         try:
             response = run_agent(prompt)
         except Exception as e:
