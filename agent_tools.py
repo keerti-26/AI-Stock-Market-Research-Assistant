@@ -150,8 +150,114 @@ def save_research_notes(ticker:str, notes_text:str, user:str="demo_user") -> str
            conn.close()
     return f"Note saved successfully for {ticker.strip().upper()} (ID: {note_id})"
 
-    
-        
+def manage_watchlist(action: str, ticker: str, user_id: str = "demo_user") -> str:
+    """
+    Add or remove a ticker from the user's watchlist. action must be
+    "add" or "remove" — validated before touching the database, same
+    pattern as save_research_note.
+    """
+    action = action.strip().lower()
+    ticker = ticker.strip().upper()
+ 
+    if action not in ("add", "remove"):
+        return f"Rejected: action must be 'add' or 'remove', got '{action}'."
+    if not ticker or not ticker.isalnum() or len(ticker) > 10:
+        return f"Rejected: '{ticker}' doesn't look like a valid ticker symbol."
+ 
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            if action == "add":
+                cur.execute(
+                    """
+                    INSERT INTO watchlist_tickers (user_id, ticker)
+                    VALUES (%s, %s)
+                    ON CONFLICT (user_id, ticker) DO NOTHING
+                    """,
+                    (user_id, ticker),
+                )
+                message = f"Added {ticker} to your watchlist."
+            else:
+                cur.execute(
+                    "DELETE FROM watchlist_tickers WHERE user_id = %s AND ticker = %s",
+                    (user_id, ticker),
+                )
+                message = (
+                    f"Removed {ticker} from your watchlist."
+                    if cur.rowcount > 0
+                    else f"{ticker} wasn't on your watchlist."
+                )
+        conn.commit()
+    finally:
+        conn.close()
+ 
+    return message
+
+def compare_tickers(tickers: list[str]) -> str:
+    """
+    Compare price/fundamentals across multiple tickers side by side.
+    Reuses the same price_snapshots + companies lookup as
+    get_price_summary, just runs it for each ticker and formats a
+    side-by-side comparison instead of a single summary.
+    """
+    tickers = [t.strip().upper() for t in tickers if t.strip()]
+    if len(tickers) < 2:
+        return "Need at least 2 tickers to compare."
+ 
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            rows = {}
+            for ticker in tickers:
+                cur.execute(
+                    """
+                    SELECT snapshot_date, open_price, close_price, high_price, low_price, volume
+                    FROM price_snapshots
+                    WHERE ticker = %s
+                    ORDER BY snapshot_date DESC
+                    LIMIT 1
+                    """,
+                    (ticker,),
+                )
+                price_row = cur.fetchone()
+ 
+                cur.execute(
+                    "SELECT company_name, sic_description, market_cap FROM companies WHERE ticker = %s",
+                    (ticker,),
+                )
+                company_row = cur.fetchone()
+ 
+                rows[ticker] = (price_row, company_row)
+    finally:
+        conn.close()
+ 
+    lines = []
+    for ticker, (price_row, company_row) in rows.items():
+        if price_row is None:
+            lines.append(f"{ticker}: no price data found.")
+            continue
+ 
+        snapshot_date, open_price, close_price, high_price, low_price, volume = price_row
+        change = close_price - open_price
+        pct_change = (change / open_price * 100) if open_price else 0
+        direction = "up" if change >= 0 else "down"
+ 
+        line = (
+            f"{ticker}: close {close_price} ({direction} {abs(pct_change):.2f}%), "
+            f"range {low_price}-{high_price}, volume {volume:,}"
+        )
+        if company_row and company_row[0]:
+            company_name, sector, market_cap = company_row
+            extras = [company_name]
+            if sector:
+                extras.append(sector)
+            if market_cap:
+                extras.append(f"market cap {market_cap:,.0f}")
+            line = f"{line} — {', '.join(extras)}"
+ 
+        lines.append(line)
+ 
+    return "\n".join(lines)        
 
 if __name__ == "__main__":
     print(get_price_summary("AAPL"))
