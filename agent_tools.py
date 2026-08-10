@@ -44,11 +44,28 @@ def get_price_summary(ticker:str) -> str:
     change = close_price - open_price
     direction = "up" if change>=0 else "down"
     pct_change = (change/open_price*100) if open_price else 0
-    return(
+    summary = (
         f"{ticker} on {snapshot_date}: closed at {close_price} "
         f"({direction} {abs(pct_change):.2f}% from open of {open_price}). "
         f"Day range: {low_price}-{high_price}. Volume: {volume:,}."
     )
+    conn = _get_connection()
+    try:
+        with conn.cursor() as curr:
+            curr.execute(
+                "Select company_name, description from companies where ticker = %s",
+                (ticker,),
+            )
+            company_row = curr.fetchone()
+    finally:
+        conn.close()
+    if company_row and company_row[0]:
+        company_name, sector = company_row
+        prefix = f"{company_name}"
+        if sector:
+            prefix += f" ({sector})"
+        summary = f"{prefix} — {summary}"
+    return summary
 
 def search_news(query:str, ticker:str | None = None, top_k:int=5) -> str:
     """
@@ -137,8 +154,8 @@ def save_research_notes(ticker:str, notes_text:str, user:str="demo_user") -> str
         
 
 if __name__ == "__main__":
-    # print(get_price_summary("AAPL"))
+    print(get_price_summary("AAPL"))
     # print()
     # print(search_news("rising interest rates impact on banking sector", "AAPL"))
-    print(save_research_notes("AAPL", "Bank of America remains one of Berkshire's largest holdings"))
+    # print(save_research_notes("AAPL", "Bank of America remains one of Berkshire's largest holdings"))
     # print(_get_connection())

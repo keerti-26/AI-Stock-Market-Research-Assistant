@@ -46,6 +46,17 @@ class MassiveClient:
         resp.raise_for_status()
         return resp.json()
     
+    def get_ticker_details(self, ticker:str) -> dict:
+        """
+        Fetch company reference data for a single ticker in a SINGLE API
+        call (GET /v3/reference/tickers/{ticker}). Returns the "results"
+        object - has: ticker, name, description, sic_code, sic_description,
+        market_cap, homepage_url, primary_exchange, total_employees,
+        list_date, and more.
+        """
+        data = self.get(f"/v3/reference/tickers/{ticker}")
+        return data.get("results", {})
+    
     def get_latest_price(self, symbol: str) -> dict:
         """
         Fetch the latest traded price for a single symbol in a SINGLE API
