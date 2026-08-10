@@ -58,6 +58,8 @@ News + trafilatura ──┘         │                                │
 - **Open-source model via Groq, not Databricks-native serving:** Databricks Free Edition's pay-per-token Foundation Model APIs are currently unreliable/blocked for this workspace tier. Groq (hosting Llama) was used instead — called as a plain external API from within the Databricks notebook/app, the same pattern used for the Massive API client, so the rest of the Databricks-native architecture is unaffected.
 - **Model swapped from Llama 3.3 70B to Llama 3.1 8B Instant:** hit a known, documented Groq issue where Llama occasionally emits a malformed tool-call format that Groq's API rejects outright (`tool_use_failed`). The smaller model plus disabling parallel tool calls reduced how often this occurs; the agent loop also has retry + fallback recovery logic so a single bad generation doesn't surface as a raw error to the user.
 - **pgvector inside Lakebase rather than a separate Databricks Vector Search index:** kept the whole system on one database connection instead of standing up a second retrieval system, given the project timeline.
+## Screenshots
+![image_1786332269116.png](./image_1786332269116.png "image_1786332269116.png")
 
 ## Future enhancements
 
