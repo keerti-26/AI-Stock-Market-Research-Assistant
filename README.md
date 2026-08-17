@@ -1,6 +1,6 @@
 # AI Stock Market Research Assistant
 
-A Databricks AI Bootcamp capstone project. Users track a personal watchlist of tickers, ask natural-language questions about prices and news, and the agent pulls real market data, retrieves relevant news via semantic search, and can act on the user's behalf — updating their watchlist and logging research notes.
+Users track a personal watchlist of tickers, ask natural-language questions about prices and news, and the agent pulls real market data, retrieves relevant news via semantic search, and can act on the user's behalf updating their watchlist and logging research notes.
 
 ## What it does
 
